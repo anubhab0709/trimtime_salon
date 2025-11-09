@@ -83,14 +83,14 @@ export default function TodaysAppointments() {
 
   // Available services list
   const availableServices = [
-    { id: "s1", name: "Haircut", category: "men", price: 200, duration: 30 },
-    { id: "s2", name: "Haircut (Women)", category: "women", price: 350, duration: 45 },
-    { id: "s3", name: "Shave", category: "men", price: 120, duration: 15 },
-    { id: "s4", name: "Beard Trim", category: "men", price: 150, duration: 20 },
-    { id: "s5", name: "Manicure", category: "women", price: 300, duration: 35 },
-    { id: "s6", name: "Pedicure", category: "women", price: 320, duration: 35 },
-    { id: "s7", name: "Hair Color", category: "unisex", price: 800, duration: 90 },
-    { id: "s8", name: "Face Pack", category: "unisex", price: 400, duration: 40 },
+    { id: "s1", name: "Haircut", names: { English: "Haircut", Bengali: "হেয়ার কাট", Hindi: "हेयरकट" }, category: "men", price: 200, duration: 30 },
+    { id: "s2", name: "Haircut (Women)", names: { English: "Haircut (Women)", Bengali: "হেয়ার কাট (মহিলা)", Hindi: "हेयरकट (महिला)" }, category: "women", price: 350, duration: 45 },
+    { id: "s3", name: "Shave", names: { English: "Shave", Bengali: "শেভ", Hindi: "शेव" }, category: "men", price: 120, duration: 15 },
+    { id: "s4", name: "Beard Trim", names: { English: "Beard Trim", Bengali: "দাড়ি ট্রিম", Hindi: "दाढ़ी ट्रिम" }, category: "men", price: 150, duration: 20 },
+    { id: "s5", name: "Manicure", names: { English: "Manicure", Bengali: "ম্যানিকিউর", Hindi: "मैनिक्योर" }, category: "women", price: 300, duration: 35 },
+    { id: "s6", name: "Pedicure", names: { English: "Pedicure", Bengali: "পেডিকিউর", Hindi: "पेडिक्योर" }, category: "women", price: 320, duration: 35 },
+    { id: "s7", name: "Hair Color", names: { English: "Hair Color", Bengali: "হেয়ার কালার", Hindi: "हेयर कलर" }, category: "unisex", price: 800, duration: 90 },
+    { id: "s8", name: "Face Pack", names: { English: "Face Pack", Bengali: "ফেস প্যাক", Hindi: "फेस पैक" }, category: "unisex", price: 400, duration: 40 },
   ]
 
   const [rescheduleAppointment, setRescheduleAppointment] = useState(null)
@@ -238,7 +238,8 @@ export default function TodaysAppointments() {
             <div className="booking-header">
               <div className="booking-info">
                 <h3 className="booking-name">{appointment.name}</h3>
-                <p className="booking-date">{appointment.time} • {appointment.phone}</p>
+                <p className="booking-phone">{appointment.phone}</p>
+                <p className="booking-time">{appointment.time}</p>
               </div>
             </div>
 
@@ -246,16 +247,24 @@ export default function TodaysAppointments() {
 
             <div className="booking-actions">
               <button className="btn btn-start" onClick={(e) => { e.stopPropagation(); handleStart(appointment.id); }}>
-             {t.start}
+                {t.start}
               </button>
+
               <button className="btn btn-reschedule" onClick={(e) => { e.stopPropagation(); handleReschedule(appointment.id); }}>
-             {t.reschedule}
+                {t.reschedule}
               </button>
-              <button className="btn btn-call" onClick={(e) => { e.stopPropagation(); window.location.href = `tel:${appointment.phone}`; }}>
-             ☎ Call
-              </button>
+
               <button className="btn btn-cancel" onClick={(e) => { e.stopPropagation(); openCancelModal(appointment.id); }}>
-             {t.cancel}
+                {t.cancel}
+              </button>
+
+              <button
+                className="btn btn-call btn-call-round"
+                aria-label={`Call ${appointment.name}`}
+                onClick={(e) => { e.stopPropagation(); window.location.href = `tel:${appointment.phone}`; }}
+                title={`Call ${appointment.phone}`}
+              >
+                ☎
               </button>
             </div>
           </div>
@@ -410,11 +419,11 @@ export default function TodaysAppointments() {
               </svg>
             </div>
 
-            <h3 className="success-title">Rescheduled Successfully!</h3>
-            <p className="success-message">The appointment has been rescheduled.</p>
+            <h3 className="success-title">{t.rescheduledSuccessTitle}</h3>
+            <p className="success-message">{t.rescheduledSuccessMessage}</p>
 
             <button className="popup-btn popup-btn-done" onClick={handleRescheduleDone}>
-              Done
+              {t.done || 'Done'}
             </button>
           </div>
         </div>
@@ -473,14 +482,15 @@ export default function TodaysAppointments() {
           className="btn btn-more-bookings"
           onClick={() => {
             try {
-              window.history.pushState({}, '', '/all-bookings')
+              // Navigate to bookings (showing today's bookings by default)
+              window.history.pushState({ page: 'bookings' }, '', '#bookings')
               window.dispatchEvent(new PopStateEvent('popstate'))
             } catch (e) {
-              window.location.href = '/all-bookings'
+              window.location.hash = '#bookings'
             }
           }}
         >
-          {t.viewAll || 'View All'} →
+          {t.viewAll || 'View All'}
         </button>
       </div>
       

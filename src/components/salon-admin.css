@@ -30,6 +30,10 @@
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  /* App layout sizing */
+  --app-max-width: 1440px;
+  --app-content-width: 1200px;
+  --app-side-padding: 24px;
 }
 
 body {
@@ -43,15 +47,16 @@ body {
 }
 
 .salon-admin-container {
+  /* Full-bleed background container that centers inner content */
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-width: 500px;
-  margin: 0 auto;
+  min-height: 100vh; /* allow content to grow beyond viewport if needed */
+  width: 100%;
+  margin: 0;
   background: var(--gradient-dark);
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden; /* prevent horizontal overflow on very large content */
 }
 
 /* Animated gradient background */
@@ -81,17 +86,18 @@ body {
 /* HEADER STYLES - GLASS MORPHISM */
 .salon-header {
   /* Glass look + sticky header that remains clean when scrolled */
-  background: rgba(255,255,255,0.85);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(220,225,230,0.6);
-  padding: 14px 16px;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(2,6,23,0.06);
   position: sticky;
-  top: 0;
-  margin: 12px 12px 12px 12px;
-  width: calc(100% - 24px);
+  top: 12px;
+  margin: 12px auto;
+  width: calc(100% - 48px);
+  max-width: var(--app-content-width);
   z-index: 100;
   transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
   display: flex;
@@ -118,6 +124,9 @@ body {
   justify-content: space-between; /* left logo / right status */
   align-items: center; /* vertically center across viewports */
   gap: 12px;
+  width: 100%;
+  max-width: var(--app-content-width);
+  margin: 0 auto;
 }
 
 /* Brand container (left) */
@@ -270,14 +279,14 @@ body {
 }
 
 .salon-header-right {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  padding: 14px;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 12px 14px;
+  border-radius: 12px;
   border: 1px solid rgba(200, 210, 220, 0.5);
   text-align: center;
   min-width: 140px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .salon-status-card {
@@ -313,9 +322,24 @@ body {
 .salon-admin-main {
   flex: 1;
   overflow-y: auto;
-  padding: 14px;
+  padding: var(--app-side-padding);
   padding-bottom: 90px;
   scroll-behavior: smooth;
+  /* Center and constrain page content for large screens */
+  width: 100%;
+  max-width: var(--app-content-width);
+  margin: 0 auto;
+}
+.salon-admin-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--app-side-padding);
+  padding-bottom: 90px;
+  scroll-behavior: smooth;
+  /* Center and constrain page content for large screens */
+  width: 100%;
+  max-width: var(--app-content-width);
+  margin: 0 auto;
 }
 
 .salon-admin-main::-webkit-scrollbar {
@@ -331,11 +355,43 @@ body {
   border-radius: 10px;
 }
 
+/* Layout breakpoints: make app fit large screens and reduce padding on smaller screens */
+@media (min-width: 1200px) {
+  .salon-admin-container {
+    padding: 24px 0;
+  }
+  .salon-admin-main {
+    padding: 32px;
+    max-width: var(--app-content-width);
+  }
+  .section-title { padding: 16px 20px; }
+  .salon-header-title { font-size: 44px; }
+}
+
+@media (min-width: 1600px) {
+  :root { --app-content-width: 1400px; --app-side-padding: 32px; }
+}
+
+@media (max-width: 900px) {
+  :root { --app-side-padding: 16px; }
+  .salon-admin-main { padding: 16px; max-width: 900px; }
+  .salon-header { top: 8px; width: calc(100% - 32px); }
+  .salon-header-title { font-size: 30px; }
+}
+
+@media (max-width: 600px) {
+  :root { --app-side-padding: 12px; }
+  .salon-admin-main { padding: 12px; max-width: 540px; }
+  .salon-header { margin: 8px 12px; width: calc(100% - 24px); top: 8px; border-radius: 10px; }
+  .salon-header-title { font-size: 26px; }
+}
+
 .salon-home-content {
   display: flex;
   flex-direction: column;
   /* increased gap between home page sections/cards */
   gap: 20px;
+  width: 100%;
 }
 
 /* SECTION STYLES */
@@ -379,6 +435,15 @@ body {
 .glass-card:hover {
   background: rgba(255, 255, 255, 0.75);
   transform: translateY(-5px);
+}
+
+/* Ratings page: ensure all textual content is left-aligned */
+.ratings-page {
+  text-align: left;
+}
+.ratings-page .rating-card,
+.ratings-page .rating-card * {
+  text-align: left !important;
 }
 
 /* ServicesManager adjustments */
@@ -914,14 +979,15 @@ body {
 }
 
 .btn-start {
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  /* Make the Start button color distinct (purple gradient) */
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
   color: var(--white);
-  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.25);
 }
 
 .btn-start:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  box-shadow: 0 8px 26px rgba(124, 58, 237, 0.32);
 }
 
 .btn-reschedule {
@@ -936,15 +1002,18 @@ body {
 }
 
 .btn-cancel {
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(200, 210, 220, 0.6);
-  color: var(--gray-dark);
-  backdrop-filter: blur(10px);
+  /* Red glass cancel button (uniform across cards) */
+  background: linear-gradient(180deg, rgba(255,240,240,0.94), rgba(255,245,245,0.9));
+  border: 1px solid rgba(239,68,68,0.22);
+  color: #b91c1c;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.06);
+  backdrop-filter: blur(6px);
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(200, 210, 220, 0.8);
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, rgba(255,235,235,0.96), rgba(255,240,240,0.94));
+  box-shadow: 0 10px 26px rgba(239,68,68,0.09);
 }
 
 /* Red cancel button for All Bookings page */
@@ -1170,7 +1239,7 @@ body {
 .appointments-more-row {
   margin-top: 18px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center; /* center the View All button */
 }
 
 .btn-more-bookings {
@@ -1248,6 +1317,21 @@ body {
   font-weight: 600;
 }
 
+/* Phone shown under customer name in today's appointments */
+.booking-phone {
+  font-size: 14px;
+  color: var(--gray-dark);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.booking-time {
+  font-size: 13px;
+  color: var(--gray-medium);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
 .booking-status {
   font-size: 11px;
   font-weight: 700;
@@ -1279,17 +1363,39 @@ body {
 .booking-services {
   font-size: 13px;
   color: var(--gray-dark);
-  margin-bottom: 12px;
+  margin: 6px 0 12px 0; /* tightened gap from time to services */
   opacity: 0.95;
-  line-height: 1.35;
+  line-height: 1.25;
 }
 
 .booking-actions {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-wrap: nowrap; /* keep action buttons side-by-side */
+  align-items: center;
   position: relative;
 }
+
+/* Round call icon button placed at the right */
+.btn-call-round {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+.btn-call {
+  /* subtle blue for call action */
+  background: linear-gradient(135deg,#06b6d4 0%, #0891b2 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(3,105,161,0.12);
+  border: none;
+}
+.btn-call:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(3,105,161,0.16); }
 
 .booking-serial-badge {
   position: absolute;
@@ -1346,6 +1452,23 @@ body {
   box-shadow: 0 6px 16px -4px rgba(34,197,94,.6);
 }
 .btn-call:active { transform: translateY(0); }
+
+/* Specific circular call button overrides to ensure round shape and larger icon
+   even though .btn-call is defined as a rectangular green button below. */
+.btn-call.btn-call-round {
+  width: 44px;
+  height: 44px;
+  padding: 0; /* minimal padding so icon fills the circle */
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* larger icon */
+  line-height: 1;
+  margin-left: auto; /* push to far right of actions */
+  box-shadow: 0 6px 18px rgba(34,197,94,0.12);
+}
+.btn-call.btn-call-round svg { width: 20px; height: 20px; }
 
 /* SERVICES SECTION */
 .services-section {
@@ -2669,6 +2792,28 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* More button under total revenue - blue glassmorphic box */
+.stat-more-btn {
+  margin-top: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(59,130,246,0.12));
+  border: 1px solid rgba(59,130,246,0.22);
+  box-shadow: 0 6px 18px rgba(59,130,246,0.08);
+  color: #0366d6;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.stat-more-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(59,130,246,0.12); }
+
+/* Revenue details modal tweaks */
+.revenue-details .details-title { margin-bottom: 8px; font-size: 18px; }
+.revenue-details .details-body { display:flex; flex-direction:column; gap:8px; margin-top:8px; margin-bottom:12px; }
+.revenue-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed rgba(0,0,0,0.06); }
+.rev-label { color:var(--gray-medium); font-weight:600 }
+.rev-amount { font-weight:800 }
 
 /* Profile Actions Card */
 .profile-actions-card {
@@ -4010,7 +4155,7 @@ body {
   font-size: 26px;
   font-weight: 800;
   color: #22c55e;
-  margin-bottom: 12px;
+  margin: 6px 0 12px 0; /* tightened gap from time to services */
 }
 
 .booking-success-subtitle {

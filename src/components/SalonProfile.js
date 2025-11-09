@@ -106,8 +106,25 @@ export default function SalonProfile() {
     }
   }
 
+  const [showRevenueDetails, setShowRevenueDetails] = useState(false)
+
+  const revenueDetails = {
+    month: 'October 2025',
+    total: profileData.totalRevenue,
+    breakdown: [
+      { label: 'Services', amount: '₹1,50,000' },
+      { label: 'Products', amount: '₹45,000' },
+      { label: 'Other', amount: '₹50,000' }
+    ]
+  }
+
   const contactUs = () => {
-    alert("Contact Us functionality to be implemented")
+    try {
+      window.history.pushState({}, '', '/contact')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    } catch (e) {
+      window.location.href = '/contact'
+    }
   }
 
   const viewRatings = () => {
@@ -320,6 +337,19 @@ export default function SalonProfile() {
           <div className="stat-item">
             <span className="stat-label">{t.totalRevenue}</span>
             <span className="stat-value">{profileData.totalRevenue}</span>
+            <button
+              className="stat-more-btn"
+              onClick={() => {
+                try {
+                  window.history.pushState({ page: 'total-revenue' }, '', '#total-revenue')
+                  window.dispatchEvent(new PopStateEvent('popstate', { state: { page: 'total-revenue' } }))
+                } catch (e) {
+                  window.location.hash = '#total-revenue'
+                }
+              }}
+            >
+              {t.viewMore || 'More'}
+            </button>
           </div>
         </div>
 
@@ -394,6 +424,26 @@ export default function SalonProfile() {
             <button className="popup-btn popup-btn-done" onClick={() => setShowLanguageChangedPopup(false)}>
               {t.done}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Revenue Details Modal */}
+      {showRevenueDetails && (
+        <div className="booking-popup-overlay" onClick={() => setShowRevenueDetails(false)}>
+          <div className="booking-popup-container revenue-details" onClick={(e) => e.stopPropagation()}>
+            <h3 className="details-title">{t.totalRevenue} — {revenueDetails.month}</h3>
+            <div className="details-body">
+              {revenueDetails.breakdown.map((b, idx) => (
+                <div key={idx} className="revenue-row">
+                  <span className="rev-label">{b.label}</span>
+                  <span className="rev-amount">{b.amount}</span>
+                </div>
+              ))}
+            </div>
+            <div className="details-footer">
+              <button className="popup-btn popup-btn-done" onClick={() => setShowRevenueDetails(false)}>{t.done || 'Done'}</button>
+            </div>
           </div>
         </div>
       )}

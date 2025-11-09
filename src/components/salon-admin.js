@@ -7,6 +7,7 @@ import TodaysAppointments from "./TodaysAppointments"
 import ManualBooking from "./ManualBooking"
 import AllBookings from "./AllBookings"
 import SalonProfile from "./SalonProfile"
+import TotalRevenue from "./TotalRevenue"
 import BottomNav from "./BottomNav"
 import ServicesManager from "./ServicesManager"
 
@@ -58,6 +59,8 @@ export default function SalonAdminDashboard() {
             <ServicesManager />
           </div>
         )
+      case "total-revenue":
+        return <TotalRevenue />
       case "profile":
         return <SalonProfile />
       default:
@@ -71,7 +74,7 @@ export default function SalonAdminDashboard() {
 
   return (
     <div className="salon-admin-container">
-      {currentPage !== "profile" && <SalonHeader />}
+      {currentPage !== "profile" && currentPage !== "total-revenue" && <SalonHeader />}
       <main className="salon-admin-main">{renderPage()}</main>
       <BottomNav currentPage={currentPage} setCurrentPage={goToPage} />
     </div>

@@ -8,6 +8,7 @@ import AllBookings from './components/AllBookings'
 import ManualBooking from './components/ManualBooking'
 import SalonPhotos from './components/SalonPhotos'
 import SalonProfile from './components/SalonProfile'
+import ContactUs from './components/ContactUs'
 import ServicesManager from './components/ServicesManager'
 import TodaysAppointments from './components/TodaysAppointments'
 import BottomNav from './components/BottomNav'
@@ -31,6 +32,7 @@ function App() {
               <Route path="/services" element={<ServicesManager />} />
               <Route path="/photos" element={<SalonPhotos />} />
               <Route path="/profile" element={<SalonProfile />} />
+              <Route path="/contact" element={<ContactUs />} />
               <Route path="/ratings" element={<RatingsPage />} />
               {/* keep BottomNav reachable by a route if needed */}
               <Route path="/bottom" element={<BottomNav />} />

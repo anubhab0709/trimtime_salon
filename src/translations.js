@@ -138,7 +138,9 @@ export const translations = {
     home: "Home",
     bookings: "Bookings",
     services: "Services",
-    profile: "Profile"
+    profile: "Profile",
+    viewAll: "View All",
+  viewMore: "More",
   },
   
   Bengali: {
@@ -280,7 +282,9 @@ export const translations = {
     home: "হোম",
     bookings: "বুকিং",
     services: "সেবা",
-    profile: "প্রোফাইল"
+  profile: "প্রোফাইল",
+  viewAll: "সব দেখুন",
+  viewMore: "আরও",
   },
   
   Hindi: {
@@ -422,7 +426,9 @@ export const translations = {
     home: "होम",
     bookings: "बुकिंग",
     services: "सेवाएं",
-    profile: "प्रोफाइल"
+  profile: "प्रोफाइल",
+  viewAll: "सभी देखें",
+  viewMore: "और देखें",
   }
 }
 
