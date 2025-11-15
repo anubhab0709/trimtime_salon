@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "../LanguageContext"
 import { translations, formatDateLocalized } from "../translations"
 
@@ -8,6 +8,47 @@ export default function SalonHeader() {
   const { language } = useLanguage()
   const t = translations[language]
   const [isOpen, setIsOpen] = useState(true)
+  const [highlightHeader, setHighlightHeader] = useState(false)
+
+  useEffect(() => {
+    // Initialize from localStorage if present (default: open)
+    try {
+      const stored = localStorage.getItem('salon_is_open')
+      if (stored !== null) {
+        setIsOpen(stored === 'true')
+      }
+    } catch (e) {
+      // ignore localStorage errors
+    }
+
+    const onStorage = (e) => {
+      if (e.key === 'salon_is_open') {
+        setIsOpen(e.newValue === 'true')
+      }
+    }
+
+    const onCustom = () => {
+      try {
+        const v = localStorage.getItem('salon_is_open')
+        setIsOpen(v === 'true')
+      } catch (e) {}
+    }
+
+    const onHighlight = () => {
+      setHighlightHeader(true)
+      setTimeout(() => setHighlightHeader(false), 1600)
+    }
+
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('salon:statusChanged', onCustom)
+    window.addEventListener('salon:highlightOpen', onHighlight)
+
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('salon:statusChanged', onCustom)
+      window.removeEventListener('salon:highlightOpen', onHighlight)
+    }
+  }, [])
 
   const today = formatDateLocalized(new Date(), language, {
     weekday: "long",
@@ -36,8 +77,16 @@ export default function SalonHeader() {
 
           <div className="location-section-right">
             <button
-              className={`salon-status-btn ${isOpen ? "open" : "closed"}`}
-              onClick={() => setIsOpen(!isOpen)}
+              className={`salon-status-btn ${isOpen ? "open" : "closed"} ${highlightHeader ? 'highlight' : ''}`}
+              onClick={() => {
+                const newVal = !isOpen
+                setIsOpen(newVal)
+                try {
+                  localStorage.setItem('salon_is_open', newVal ? 'true' : 'false')
+                  // notify other components
+                  window.dispatchEvent(new Event('salon:statusChanged'))
+                } catch (e) {}
+              }}
               aria-pressed={!isOpen}
             >
               <span className={`status-dot ${isOpen ? "" : "closed"}`} aria-hidden />

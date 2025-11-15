@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLanguage } from "../LanguageContext"
 import { translations, getDayTranslation } from "../translations"
 
@@ -101,9 +101,86 @@ export default function SalonProfile() {
   }
 
   const handleLogout = () => {
-    if (window.confirm(t.logoutConfirm)) {
-      alert("Logout functionality to be implemented")
+    // open the modal instead of a simple confirm
+    setShowLogoutModal(true)
+    // if shop is open, highlight the shop status area to prompt the admin
+    if (shopIsOpen) {
+      setShowLogoutHighlight(true)
+      try { window.dispatchEvent(new Event('salon:highlightOpen')) } catch (e) {}
+      setTimeout(() => setShowLogoutHighlight(false), 1800)
     }
+  }
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showLogoutHighlight, setShowLogoutHighlight] = useState(false)
+  const [shopIsOpen, setShopIsOpen] = useState(true)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('salon_is_open')
+      if (stored !== null) setShopIsOpen(stored === 'true')
+    } catch (e) {}
+
+    const onStorage = (e) => {
+      if (e.key === 'salon_is_open') setShopIsOpen(e.newValue === 'true')
+    }
+
+    const onCustom = () => {
+      try {
+        const v = localStorage.getItem('salon_is_open')
+        setShopIsOpen(v === 'true')
+      } catch (e) {}
+    }
+
+    window.addEventListener('storage', onStorage)
+    window.addEventListener('salon:statusChanged', onCustom)
+    return () => {
+      window.removeEventListener('storage', onStorage)
+      window.removeEventListener('salon:statusChanged', onCustom)
+    }
+  }, [])
+
+  const toggleShopFromModal = () => {
+    const newVal = !shopIsOpen
+    try {
+      localStorage.setItem('salon_is_open', newVal ? 'true' : 'false')
+      window.dispatchEvent(new Event('salon:statusChanged'))
+      setShopIsOpen(newVal)
+    } catch (e) {}
+  }
+
+  const performLogout = () => {
+    // Clear any auth-related storage (if used) and redirect to login
+    try {
+      localStorage.removeItem('auth_token')
+    } catch (e) {}
+    // Close modal then redirect
+    setShowLogoutModal(false)
+    try {
+      window.location.href = '/login'
+    } catch (e) {
+      window.location.href = '/'
+    }
+  }
+
+  // Find the next day/time when the shop will be open (used when shop is currently closed)
+  const findNextOpen = () => {
+    if (!businessDays || businessDays.length === 0) return null
+    const todayIdx = new Date().getDay() // 0 (Sun) - 6 (Sat)
+    const nameOrder = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
+    for (let i = 0; i < 7; i++) {
+      const idx = (todayIdx + i) % 7
+      const dayName = nameOrder[idx]
+      const dayObj = businessDays.find(d => d.day === dayName)
+      if (dayObj && dayObj.isOpen) {
+        return {
+          day: dayName,
+          openTime: dayObj.openTime,
+          inDays: i
+        }
+      }
+    }
+    return null
   }
 
   const [showRevenueDetails, setShowRevenueDetails] = useState(false)
@@ -404,6 +481,53 @@ export default function SalonProfile() {
             <button className="language-modal-close" onClick={() => setShowLanguageModal(false)}>
               {t.close}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Logout Confirmation + Shop Status Modal */}
+      {showLogoutModal && (
+        <div className="booking-popup-overlay" onClick={() => setShowLogoutModal(false)}>
+          <div className={`booking-popup-container logout-modal ${showLogoutHighlight ? 'highlight' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <h3 className="logout-title">{t.logout}</h3>
+            <p className="logout-message">{t.logoutConfirm}</p>
+
+            <div className="logout-shop-status">
+              <strong>{shopIsOpen ? t.shopOpen : t.shopClosed}</strong>
+              <div style={{ marginTop: 8 }}>
+                <button className="btn btn-small" onClick={toggleShopFromModal}>
+                  {shopIsOpen ? (t.closeShop || 'Close Shop') : (t.open || 'Open')}
+                </button>
+              </div>
+            </div>
+
+            <div className="logout-actions" style={{ marginTop: 16 }}>
+              <button className="popup-btn" onClick={() => setShowLogoutModal(false)}>{t.close}</button>
+              <button
+                className="popup-btn popup-btn-done"
+                onClick={() => performLogout()}
+                disabled={shopIsOpen}
+                title={shopIsOpen ? (t.closeShopBeforeLogout || 'Close the shop before logging out') : ''}
+              >
+                {t.logout}
+              </button>
+            </div>
+
+            {/* Hint / helper below the buttons */}
+            <div className="logout-hint">
+              {shopIsOpen ? (
+                <span className="hint-open">{t.closeShopBeforeLogout}</span>
+              ) : (
+                (() => {
+                  const next = findNextOpen()
+                  if (!next) return <span className="hint-closed">{t.opensOn || 'Will open soon'}</span>
+                  const dayLabel = next.inDays === 0 ? t.today || 'Today' : (getDayTranslation(next.day, language) || next.day)
+                  return (
+                    <span className="hint-closed">{`${t.opensOn || 'Will open on'} ${dayLabel} ${next.openTime}`}</span>
+                  )
+                })()
+              )}
+            </div>
           </div>
         </div>
       )}
